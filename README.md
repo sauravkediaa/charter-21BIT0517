@@ -30,7 +30,8 @@ The project includes:
 
 ## **Project Structure**
 ```bash
-D:\CharterLabs├── contracts/
+D:\CharterLabs
+├── contracts/
 │ └── MerkleProofVerifier.sol
 ├── scripts/
 │ └── deploy.js
