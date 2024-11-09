@@ -29,7 +29,7 @@ The project includes:
 ---
 
 ## **Project Structure**
-
+```bash
 D:\CharterLabs├── contracts/
 │ └── MerkleProofVerifier.sol
 ├── scripts/
@@ -43,7 +43,7 @@ D:\CharterLabs├── contracts/
 ├── hardhat.config.js
 ├── package.json
 └── README.md
-
+```
 ## **Prerequisites**
 
 Ensure you have the following installed:
