@@ -1,37 +1,32 @@
-import { JsonRpcProvider, formatEther } from "ethers";
+import 'dotenv/config'; // Ensure this is at the very top of your file
+import { JsonRpcProvider } from "ethers";
+import { MerkleTree } from "merkletreejs";
+import crypto from "crypto-js";
 
-// Replace with your Alchemy API URL
-const ALCHEMY_API_URL = "https://eth-sepolia.g.alchemy.com/v2/h0pS0PiaMZvlTNznIjd5S6XvcDeP6z0L";
-
-// Initialize an ethers provider using Alchemy
+const ALCHEMY_API_URL = process.env.ALCHEMY_API_URL;
 const provider = new JsonRpcProvider(ALCHEMY_API_URL);
 
-async function fetchTransactions(blockNumber) {
-  try {
-    // Fetch the block details (only transaction hashes)
-    const block = await provider.getBlock(blockNumber);
-
-    if (!block || !block.transactions.length) {
-      console.log("No transactions found for this block.");
-      return;
-    }
-
-    console.log(`Transactions in block #${blockNumber}:`);
-
-    // Fetch and display full transaction details for each transaction hash
-    for (const txHash of block.transactions) {
-      const transaction = await provider.getTransaction(txHash);
-      console.log(
-        `Transaction Hash: ${transaction.hash}, From: ${transaction.from}, To: ${transaction.to}, Value: ${formatEther(
-          transaction.value
-        )} ETH`
-      );
-    }
-  } catch (error) {
-    console.error("Error fetching transactions:", error);
-  }
+function hashData(data) {
+    return crypto.SHA256(data).toString();
 }
 
-// Replace with a block number you want to fetch transactions for
-const blockNumber = 3456789; // Example block number
-fetchTransactions(blockNumber);
+async function buildMerkleTree(blockNumber) {
+    try {
+        const block = await provider.getBlock(blockNumber);
+        if (!block) {
+            console.log("No block found");
+            return;
+        }
+        const transactionHashes = block.transactions;
+        const leaves = transactionHashes.map(hashData);
+        const tree = new MerkleTree(leaves, hashData);
+        const merkleRoot = tree.getRoot().toString('hex');
+        console.log("Merkle Root:", merkleRoot);
+        const proof = tree.getProof(leaves[0]).map(x => x.data.toString('hex'));
+        console.log("Merkle Proof:", proof);
+    } catch (error) {
+        console.error("Error fetching block:", error);
+    }
+}
+
+buildMerkleTree(3456789);
